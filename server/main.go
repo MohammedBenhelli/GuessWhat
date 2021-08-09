@@ -1,7 +1,6 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
@@ -25,11 +24,11 @@ func reader(conn *websocket.Conn) {
 			log.Println(err)
 			return
 		}
-		decode := json.NewDecoder(p)
-		rt := RequestType{}
-		if err := decode.Decode(&rt) {
-			conn.WriteMessage(1, "Error cant't read request")
-		}
+		//decode := json.NewDecoder(p)
+		//rt := RequestType{}
+		//if err := decode.Decode(&rt) {
+		//	conn.WriteMessage(1, "Error cant't read request")
+		//}
 		// print out that message for clarity
 		log.Println(string(p))
 
