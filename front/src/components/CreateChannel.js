@@ -12,7 +12,7 @@ export const CreateChannel = () => {
         readyState,
     } = useWebSocket(SOCKET_URL);
 
-    const onSubmit = data => sendJsonMessage({data, type: 'create-channel'});
+    const onSubmit = data => sendJsonMessage({...data, type: 'create-channel'});
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

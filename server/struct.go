@@ -1,13 +1,20 @@
 package server
 
 import (
+	"encoding/json"
+	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
+	"log"
 )
 
 const (
 	FILENAME string = "./server/words.txt"
 	WORDS    int    = 1799
 )
+
+var ROUTER = map[string]func(s *Server, conn *websocket.Conn, p *[]byte) error{
+	"create-channel": addChannel,
+}
 
 type User struct {
 	Username string `json:"username"`
@@ -57,7 +64,15 @@ type RequestType struct {
 	Type string `json:"type"`
 }
 
-func (s *Server) addChannel(f *JSONCreateChannel) error {
+func addChannel(s *Server, conn *websocket.Conn, p *[]byte) error {
+	var f JSONCreateChannel
+	if err := json.Unmarshal(*p, &f); err != nil {
+		if err := conn.WriteMessage(1, []byte("Error cant't read request")); err != nil {
+			return err
+		}
+	} else {
+		log.Println(f, string(*p))
+	}
 	if _, exist := s.channel.Channels[f.RoomName]; exist {
 		return errors.New("Room name already used!")
 	} else if _, exist := s.userList.Users[f.Username]; exist {
@@ -69,6 +84,7 @@ func (s *Server) addChannel(f *JSONCreateChannel) error {
 			Admin:   User{f.Username, 0},
 			Started: false,
 		}
+		log.Println(*s)
 	}
 	return nil
 }
