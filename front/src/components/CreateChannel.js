@@ -1,29 +1,27 @@
-import React from 'react';
+import React, {useContext, useEffect} from 'react';
 import {useForm} from 'react-hook-form';
-import useWebSocket, {ReadyState} from "react-use-websocket";
-import {SOCKET_URL} from "../const";
 import {useHistory} from 'react-router-dom'
 import {toast} from 'react-toastify';
+import {SocketContext} from "../context/socket";
 
 
 export const CreateChannel = () => {
     const history = useHistory();
+    const socket = useContext(SocketContext);
     const {register, handleSubmit} = useForm();
-    const {
-        sendJsonMessage,
-        readyState,
-    } = useWebSocket(SOCKET_URL, {
-        onMessage: msg => {
-            const data = JSON.parse(msg.data);
+
+    useEffect(() => {
+        socket.addEventListener('message', e => {
+            const data = JSON.parse(e.data);
             console.log(data);
             if (data.message) {
                 toast("Channel created", {type: 'success'});
                 history.push(data.data);
             } else toast(data.error, {type: 'error'});
-        }
-    });
+        });
+    }, []);
 
-    const onSubmit = data => sendJsonMessage({...data, type: 'create-channel'});
+    const onSubmit = data => socket.send(JSON.stringify({...data, type: 'create-channel'}));
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -35,7 +33,7 @@ export const CreateChannel = () => {
                 Username
                 <input {...register("username", {required: true, maxLength: 20, minLength: 3})}/>
             </label>
-            <input disabled={readyState !== ReadyState.OPEN} type="submit"/>
+            <input type="submit"/>
         </form>
     );
 }

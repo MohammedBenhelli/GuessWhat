@@ -39,4 +39,10 @@ func RandomWord() (string, error) {
 	return "", errors.New("Can't get a random word!")
 }
 
-
+func createJSONResp() *JSONResp {
+	return &JSONResp{
+		Error:   "",
+		Message: "",
+		Data:    "",
+	}
+}

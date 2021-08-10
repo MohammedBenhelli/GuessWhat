@@ -2,17 +2,14 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 )
 
 func addChannel(s *Server, conn *websocket.Conn, p *[]byte) error {
 	var f JSONCreateChannel
-	resp := JSONResp{
-		Error:   "",
-		Message: "",
-		Data:    "",
-	}
+	resp := createJSONResp()
 	if err := json.Unmarshal(*p, &f); err != nil {
 		resp.Error = "Error can't read request !"
 		if err := conn.WriteMessage(1, resp.toJSON()); err != nil {
@@ -47,6 +44,20 @@ func addChannel(s *Server, conn *websocket.Conn, p *[]byte) error {
 			return err
 		}
 		log.Println(*s.channel.Channels[f.RoomName])
+	}
+	return nil
+}
+
+func updateCanvas(s *Server, conn *websocket.Conn, p *[]byte) error {
+	var f JSONUpdateCanvas
+	resp := createJSONResp()
+	if err := json.Unmarshal(*p, &f); err != nil {
+		resp.Error = "Error can't read request !"
+		if err := conn.WriteMessage(1, resp.toJSON()); err != nil {
+			return err
+		}
+	} else {
+		fmt.Println(s.getChannel(&f.RoomName))
 	}
 	return nil
 }
