@@ -14,12 +14,9 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
-// define a reader which will listen for
-// new messages being sent to our WebSocket
-// endpoint
 func reader(conn *websocket.Conn, s *Server) {
 	for {
-		messageType, p, err := conn.ReadMessage()
+		_, p, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
 			return
@@ -34,12 +31,6 @@ func reader(conn *websocket.Conn, s *Server) {
 				log.Fatal(err)
 			}
 		}
-
-		if err := conn.WriteMessage(messageType, p); err != nil {
-			log.Println(err)
-			return
-		}
-
 	}
 }
 
@@ -49,8 +40,6 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 
 func wsEndpoint(s *Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// upgrade this connection to a WebSocket
-		// connection
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Println(err)
@@ -61,9 +50,8 @@ func wsEndpoint(s *Server) http.HandlerFunc {
 		if err != nil {
 			log.Println(err)
 		}
-		// listen indefinitely for new messages coming
-		// through on our WebSocket connection
-		reader(ws, s)
+		
+		go reader(ws, s)
 	}
 }
 
@@ -74,8 +62,8 @@ func setupRoutes(s *Server) {
 
 func Init() {
 	s := Server{
-		userList: UserList{make(map[string]User)},
-		channel:  Channel{make(map[string]Lobby)},
+		userList: UserList{make(map[string]*User)},
+		channel:  Channel{make(map[string]*Lobby)},
 	}
 	fmt.Println("Hello World")
 	setupRoutes(&s)

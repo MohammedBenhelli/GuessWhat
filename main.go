@@ -1,10 +1,9 @@
 package main
 
-import (
-	"./server"
-)
+import "./server"
 
 func main()  {
+	//sayHello()
 	server.Init()
 	//for {
 	//	word, err := server.RandomWord(); if err != nil {

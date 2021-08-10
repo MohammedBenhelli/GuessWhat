@@ -1,10 +1,7 @@
 package server
 
 import (
-	"encoding/json"
 	"github.com/gorilla/websocket"
-	"github.com/pkg/errors"
-	"log"
 )
 
 const (
@@ -12,17 +9,20 @@ const (
 	WORDS    int    = 1799
 )
 
-var ROUTER = map[string]func(s *Server, conn *websocket.Conn, p *[]byte) error{
+var ROUTER = map[string]RouteHandler{
 	"create-channel": addChannel,
 }
 
+type RouteHandler func(s *Server, conn *websocket.Conn, p *[]byte) error
+
 type User struct {
+	conn     *websocket.Conn
 	Username string `json:"username"`
 	Score    uint   `json:"score"`
 }
 
 type Team struct {
-	Users []User `json:"users"`
+	Users []*User `json:"users"`
 }
 
 type Message struct {
@@ -38,7 +38,7 @@ type Chat struct {
 type Lobby struct {
 	Teams   []Team `json:"teams"`
 	Name    string `json:"name"`
-	Admin   User   `json:"admin"`
+	Admin   *User  `json:"admin"`
 	Started bool   `json:"started"`
 }
 
@@ -48,11 +48,11 @@ type JSONCreateChannel struct {
 }
 
 type Channel struct {
-	Channels map[string]Lobby `json:"channels"`
+	Channels map[string]*Lobby `json:"channels"`
 }
 
 type UserList struct {
-	Users map[string]User `json:"users"`
+	Users map[string]*User `json:"users"`
 }
 
 type Server struct {
@@ -64,27 +64,8 @@ type RequestType struct {
 	Type string `json:"type"`
 }
 
-func addChannel(s *Server, conn *websocket.Conn, p *[]byte) error {
-	var f JSONCreateChannel
-	if err := json.Unmarshal(*p, &f); err != nil {
-		if err := conn.WriteMessage(1, []byte("Error cant't read request")); err != nil {
-			return err
-		}
-	} else {
-		log.Println(f, string(*p))
-	}
-	if _, exist := s.channel.Channels[f.RoomName]; exist {
-		return errors.New("Room name already used!")
-	} else if _, exist := s.userList.Users[f.Username]; exist {
-		return errors.New("Username already used!")
-	} else {
-		s.channel.Channels[f.RoomName] = Lobby{
-			Teams:   nil,
-			Name:    f.RoomName,
-			Admin:   User{f.Username, 0},
-			Started: false,
-		}
-		log.Println(*s)
-	}
-	return nil
+type JSONResp struct {
+	Error   string `json:"error"`
+	Message string `json:"message"`
+	Data    string `json:"data"`
 }

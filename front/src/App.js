@@ -1,16 +1,11 @@
-import React, {useCallback, useMemo, useRef} from "react";
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-} from "react-router-dom";
+import React from "react";
+import {BrowserRouter as Router, Route, Switch,} from "react-router-dom";
 import {CreateChannel} from "./components/CreateChannel";
+import {ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
-
-
-
-    return (
+    return (<>
         <Router>
             <Switch>
                 <Route path="/create-channel">
@@ -21,7 +16,8 @@ function App() {
                 </Route>
             </Switch>
         </Router>
-    );
+        <ToastContainer/>
+    </>);
 }
 
 export default App;

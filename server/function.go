@@ -39,13 +39,4 @@ func RandomWord() (string, error) {
 	return "", errors.New("Can't get a random word!")
 }
 
-//func Router(s *Server, r *string) error {
-//	switch *r {
-//	case "create-channel":
-//		if err := s.addChannel();err != nil {
-//			return err
-//		}
-//		break
-//	}
-//	return nil
-//}
+
