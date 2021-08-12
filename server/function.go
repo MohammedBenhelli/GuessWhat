@@ -9,6 +9,9 @@ import (
 	"os"
 )
 
+//TODO: func parseWord(word string, letter int) string
+//parseWord("bonjour", 3) => b__j_u_
+
 func RandomWord() (string, error) {
 	index := 0
 	randNumber := rand.Intn(WORDS)

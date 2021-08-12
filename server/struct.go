@@ -11,7 +11,7 @@ const (
 
 var ROUTER = map[string]RouteHandler{
 	"create-channel": addChannel,
-	"update-canvas": updateCanvas,
+	"update-canvas":  updateCanvas,
 }
 
 type RouteHandler func(s *Server, conn *websocket.Conn, p *[]byte) error
@@ -41,6 +41,9 @@ type Lobby struct {
 	Name    string `json:"name"`
 	Admin   *User  `json:"admin"`
 	Started bool   `json:"started"`
+	Canvas  string `json:"canvas"`
+	Word    string `json:"word"`
+	Drawer  *User  `json:"drawer"`
 }
 
 type JSONCreateChannel struct {
@@ -49,7 +52,7 @@ type JSONCreateChannel struct {
 }
 
 type JSONUpdateCanvas struct {
-	Canvas string `json:"canvas"`
+	Canvas   string `json:"canvas"`
 	RoomName string `json:"room_name"`
 }
 

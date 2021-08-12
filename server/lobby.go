@@ -7,6 +7,10 @@ func (l *Lobby) startLobby() error {
 		return errors.New("You must be at least 2 to start a game!")
 	}
 	l.Started = false
+	w, err := RandomWord(); if err != nil {
+		return err
+	}
+	l.Word = w
 	return nil
 }
 
