@@ -12,6 +12,10 @@ const (
 var ROUTER = map[string]RouteHandler{
 	"create-channel": addChannel,
 	"update-canvas":  updateCanvas,
+	"join-channel": joinChannel,
+	"is-admin": isAdmin,
+	"is-drawer": isDrawer,
+	"start-game": startGame,
 }
 
 type RouteHandler func(s *Server, conn *websocket.Conn, p *[]byte) error
@@ -44,9 +48,19 @@ type Lobby struct {
 	Canvas  string `json:"canvas"`
 	Word    string `json:"word"`
 	Drawer  *User  `json:"drawer"`
+	persons int
 }
 
 type JSONCreateChannel struct {
+	Username string `json:"username"`
+	RoomName string `json:"room_name"`
+}
+
+type JSONGetRoomName struct {
+	RoomName string `json:"room_name"`
+}
+
+type JSONJoinChannel struct {
 	Username string `json:"username"`
 	RoomName string `json:"room_name"`
 }

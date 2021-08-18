@@ -5,7 +5,7 @@ import {toast} from 'react-toastify';
 import {SocketContext} from "../context/socket";
 
 
-export const CreateChannel = () => {
+export const JoinChannel = () => {
     const history = useHistory();
     const socket = useContext(SocketContext);
     const {register, handleSubmit} = useForm();
@@ -14,14 +14,14 @@ export const CreateChannel = () => {
         socket.onmessage = e => {
             const data = JSON.parse(e.data);
             console.log(data);
-            if (data.message=== 'Channel created') {
-                toast("Channel created", {type: 'success'});
+            if (data.message === 'Added to channel') {
+                toast("Channel joined", {type: 'success'});
                 history.push(data.data);
             } else toast(data.error, {type: 'error'});
         };
     }, []);
 
-    const onSubmit = data => socket.send(JSON.stringify({...data, type: 'create-channel'}));
+    const onSubmit = data => socket.send(JSON.stringify({...data, type: 'join-channel'}));
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>

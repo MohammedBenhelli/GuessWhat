@@ -9,6 +9,21 @@ import (
 	"os"
 )
 
+func GetDrawer(l *Lobby) (*User, error) {
+	r := rand.Intn(l.persons - 1)
+	fmt.Println(r)
+	in := 0
+	for i := range l.Teams {
+		for j := range l.Teams[i].Users {
+			if in == r {
+				return l.Teams[i].Users[j], nil
+			}
+			in++
+		}
+	}
+	return nil, errors.New("Can't get a random drawer !")
+}
+
 //TODO: func parseWord(word string, letter int) string
 //parseWord("bonjour", 3) => b__j_u_
 
@@ -29,7 +44,6 @@ func RandomWord() (string, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		index++
-		fmt.Println(scanner.Text())
 		if index == randNumber {
 			return scanner.Text(), nil
 		}
