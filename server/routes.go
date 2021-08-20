@@ -32,6 +32,7 @@ func addChannel(s *Server, conn *websocket.Conn, p *[]byte) error {
 			Admin:   &u,
 			Started: false,
 			persons: 1,
+			Chat: Chat{Messages: []Message{}},
 		}
 		s.userList.Users[f.Username] = &u
 		s.channel.Channels[f.RoomName] = &l
@@ -166,7 +167,8 @@ func startGame(s *Server, conn *websocket.Conn, p *[]byte) error {
 		if err := l.startLobby(); err != nil {
 			return err
 		}
-		js, err := json.Marshal(l); if err != nil {
+		js, err := json.Marshal(l)
+		if err != nil {
 			return err
 		}
 		resp.Data = string(js)
@@ -176,7 +178,40 @@ func startGame(s *Server, conn *websocket.Conn, p *[]byte) error {
 					return err
 				}
 			}
+		}
+	}
+	return nil
+}
+
+func newMessage(s *Server, conn *websocket.Conn, p *[]byte) error {
+	var f JSONNewMessage
+	resp := createJSONResp()
+	if err := json.Unmarshal(*p, &f); err != nil {
+		resp.Error = "Error can't read request !"
+		if err := conn.WriteMessage(1, resp.toJSON()); err != nil {
+			return err
+		}
+	} else {
+		resp.Message = "new-message"
+		l, err := s.getChannel(&f.RoomName)
+		if err != nil {
+			return err
+		}
+		if err := l.newMessage(&f.Message, conn); err != nil {
+			return err
+		}
+		js, err := json.Marshal(l)
+		if err != nil {
+			return err
+		}
+		resp.Data = string(js)
+		for i := range l.Teams {
+			for j := range l.Teams[i].Users {
+				if err := l.Teams[i].Users[j].conn.WriteMessage(1, resp.toJSON()); err != nil {
+					return err
+				}
 			}
+		}
 	}
 	return nil
 }

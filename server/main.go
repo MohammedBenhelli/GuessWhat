@@ -21,6 +21,7 @@ func reader(conn *websocket.Conn, s *Server) {
 			log.Println(err)
 			return
 		}
+		fmt.Println(string(p))
 		var rt RequestType
 		if err := json.Unmarshal(p, &rt); err != nil {
 			if err := conn.WriteMessage(1, []byte("Error can't read request")); err != nil {
@@ -65,7 +66,7 @@ func Init() {
 		userList: UserList{make(map[string]*User)},
 		channel:  Channel{make(map[string]*Lobby)},
 	}
-	fmt.Println("Hello World")
 	setupRoutes(&s)
+	fmt.Println("Server listening on port :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

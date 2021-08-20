@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
+	"time"
 )
 
 func (l *Lobby) startLobby() error {
@@ -10,14 +11,17 @@ func (l *Lobby) startLobby() error {
 		return errors.New("You must be at least 2 to start a game!")
 	}
 	l.Started = true
-	w, err := RandomWord(); if err != nil {
+	w, err := RandomWord()
+	if err != nil {
 		return err
 	}
 	l.Word = w
-	d, err := GetDrawer(l); if err !=nil {
+	d, err := GetDrawer(l)
+	if err != nil {
 		return err
 	}
 	l.Drawer = d
+	l.Canvas = ""
 	return nil
 }
 
@@ -35,7 +39,6 @@ func (l *Lobby) addToTeam(u *User) error {
 	return nil
 }
 
-
 func (l *Lobby) updateCanvas(conn *websocket.Conn, r *JSONResp) error {
 	for i := range l.Teams {
 		for j := range l.Teams[i].Users {
@@ -48,7 +51,6 @@ func (l *Lobby) updateCanvas(conn *websocket.Conn, r *JSONResp) error {
 	}
 	return nil
 }
-
 
 func (l *Lobby) isAdmin(conn *websocket.Conn, r *JSONResp) error {
 	if l.Admin.conn == conn {
@@ -65,9 +67,8 @@ func (l *Lobby) isAdmin(conn *websocket.Conn, r *JSONResp) error {
 	return nil
 }
 
-
 func (l *Lobby) isDrawer(conn *websocket.Conn, r *JSONResp) error {
-	if l.Admin.conn == conn {
+	if l.Drawer.conn == conn {
 		r.Data = "true"
 		if err := conn.WriteMessage(1, r.toJSON()); err != nil {
 			return err
@@ -78,5 +79,27 @@ func (l *Lobby) isDrawer(conn *websocket.Conn, r *JSONResp) error {
 	if err := conn.WriteMessage(1, r.toJSON()); err != nil {
 		return err
 	}
+	return nil
+}
+
+func (l *Lobby) newMessage(msg *string, conn *websocket.Conn) error {
+	var m Message
+	for i := range l.Teams {
+		for j := range l.Teams[i].Users {
+			if l.Teams[i].Users[j].conn == conn {
+				m.User = l.Teams[i].Users[j]
+				m.Timestamp = time.Now().String()
+				m.Text = *msg
+			}
+		}
+	}
+	if l.Word == *msg && l.Drawer.conn != conn {
+		m.User.Score += 300
+		m.Text = m.User.Username + " a devine le mot !"
+		if err := l.startLobby(); err != nil {
+			return err
+		}
+	}
+	l.Chat.Messages = append(l.Chat.Messages, m)
 	return nil
 }

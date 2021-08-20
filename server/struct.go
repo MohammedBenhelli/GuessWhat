@@ -12,10 +12,11 @@ const (
 var ROUTER = map[string]RouteHandler{
 	"create-channel": addChannel,
 	"update-canvas":  updateCanvas,
-	"join-channel": joinChannel,
-	"is-admin": isAdmin,
-	"is-drawer": isDrawer,
-	"start-game": startGame,
+	"join-channel":   joinChannel,
+	"is-admin":       isAdmin,
+	"is-drawer":      isDrawer,
+	"start-game":     startGame,
+	"new-message":    newMessage,
 }
 
 type RouteHandler func(s *Server, conn *websocket.Conn, p *[]byte) error
@@ -33,7 +34,7 @@ type Team struct {
 type Message struct {
 	Text      string `json:"text"`
 	Timestamp string `json:"timestamp"`
-	User      User   `json:"user"`
+	User      *User  `json:"user"`
 }
 
 type Chat struct {
@@ -48,6 +49,7 @@ type Lobby struct {
 	Canvas  string `json:"canvas"`
 	Word    string `json:"word"`
 	Drawer  *User  `json:"drawer"`
+	Chat    Chat   `json:"chat"`
 	persons int
 }
 
@@ -68,6 +70,11 @@ type JSONJoinChannel struct {
 type JSONUpdateCanvas struct {
 	Canvas   string `json:"canvas"`
 	RoomName string `json:"room_name"`
+}
+
+type JSONNewMessage struct {
+	RoomName string `json:"room_name"`
+	Message  string `json:"message"`
 }
 
 type Channel struct {

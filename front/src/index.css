@@ -1,13 +1,108 @@
+@font-face {
+  font-family: 'Crayon';
+  src: local('Crayon'), url(./font/DkCrayonCrumble.ttf) format('truetype');
+  /* other formats include: 'woff2', 'truetype, 'opentype',
+                            'embedded-opentype', and 'svg' */
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Crayon', BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  font-size: 24px;
+  font-family: 'Crayon', 'Roboto', sans-serif;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+#home, #channel {
+  width: 100vw;
+  height: 100vh;
+  background-color: #426dea;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+input {
+  font-size: 20px;
+  border-radius: 8px;
+  margin: 5px 5px 5px 5px;
+  padding: 5px 5px 5px 5px;
+}
+
+input[type="submit"]:hover {
+  transition-duration: 500ms;
+  transition-property: transform;
+  transform: scale(1.1) ;
+  background-color: rgba(117, 212, 98, 0.82);
+}
+
+input[type="submit"] {
+  cursor: pointer;
+  color: white;
+  background-color: #75d462;
+  border: white;
+}
+
+button:hover {
+  transition-duration: 500ms;
+  transition-property: transform;
+  transform: scale(1.1) ;
+  background-color: rgba(117, 212, 98, 0.82);
+}
+
+button {
+  cursor: pointer;
+  color: white;
+  background-color: #75d462;
+  border: white;
+}
+
+#title {
+  top: 20px;
+  position: absolute;
+  font-size: 90px;
+}
+
+#team-1 {
+  color: #c40909;
+  font-size: 30px;
+}
+
+#team-2 {
+  color: #2cd90a;
+  font-size: 30px;
+}
+
+#word {
+  margin-top: -30px;
+  font-size: 45px;
+  text-align: center;
+  color: white;
+}
+
+.message {
+  line-height: 25px;
+}
+
+#messages {
+  margin-top: 90px;
+  margin-left: 10px;
+  height: 400px;
+  overflow: scroll;
+  background-color: white;
+}
+
+#drawer {
+
 }

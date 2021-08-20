@@ -16,8 +16,12 @@ export const Drawer = () => {
     const [started, setIsStarted] = useState(false)
     const drawRef = useRef(null);
 
+    const sleep = (milliseconds) => {
+        return new Promise(resolve => setTimeout(resolve, milliseconds))
+    }
+
     useEffect(() => {
-        socket.onmessage = e => {
+        socket.onmessage = async e => {
             const {data, error, message} = JSON.parse(e.data);
             console.log(JSON.parse(e.data));
             if (message === 'update-canvas' && !isAdmin) {
@@ -25,14 +29,20 @@ export const Drawer = () => {
                 drawRef.current.loadSaveData(data, true);
             } else if (message === 'is-admin') {
                 setIsAdmin(data === 'true');
-            }else if (message === 'is-drawer') {
+            } else if (message === 'is-drawer') {
                 setIsDrawer(data === 'true');
-            } else if (message === 'start-game'){
+            } else if (message === 'start-game') {
                 setState(JSON.parse(data));
-                console.log(state)
                 setIsStarted(true);
                 socket.send(JSON.stringify({type: 'is-drawer', room_name: groupchat}));
-            } else toast(error, {type: 'error'});
+            } else if (message === 'new-message') {
+                setState(JSON.parse(data));
+                console.log(JSON.parse(data))
+                await sleep(500)
+                socket.send(JSON.stringify({type: 'is-drawer', room_name: groupchat}));
+            } else {
+                toast(error, {type: 'error'});
+            }
         };
         socket.send(JSON.stringify({type: 'is-admin', room_name: groupchat}));
     }, [groupchat]);
@@ -59,11 +69,48 @@ export const Drawer = () => {
     };
 
 
-    return (<>
-        <SliderPicker color={color} onChangeComplete={c => setColor(c.hex)}/>
-        <CanvasDraw ref={drawRef} {...props} />
-        {isDrawer && <button onClick={() => drawRef.current.undo()}>Previous</button>}
-        {isAdmin && !started && <button onClick={startGame}>Start</button>}
-        {started && <h1>{state.word}</h1>}
-    </>);
+    return (<div id={'channel'}>
+        <PersonsList users={state?.teams}/>
+        <div id="drawer">
+            {started && isDrawer && <h1 id={'word'}>{state.word}</h1>}
+            <SliderPicker color={color} onChangeComplete={c => setColor(c.hex)}/>
+            <CanvasDraw ref={drawRef} {...props} />
+            {isDrawer && <button onClick={() => drawRef.current.undo()}>Previous</button>}
+            {isAdmin && !started && <button onClick={startGame}>Start</button>}
+        </div>
+        <Chat messages={state?.chat?.messages || []} socket={socket} groupchat={groupchat}/>
+    </div>);
+}
+
+
+const PersonsList = ({users}) => {
+    return (<div id="users-list">
+        <div id="team-1">
+            Team #1
+            {users && users[0]?.users.map((user, i) => <div key={i}>
+                <p>{user.username} score: {user.score}</p>
+            </div>)}
+        </div>
+        <br/><br/>
+        <div id="team-2">
+            Team #2
+            {users && users[1]?.users.map((user, i) => <div key={i}>
+                <p>{user.username} score: {user.score}</p>
+            </div>)}
+        </div>
+    </div>);
+}
+
+const Chat = ({messages, socket, groupchat}) => {
+    return (<div id={'chat-box'}>
+        <div id="messages">
+            {messages.map((message, i) => <p key={i} title={message?.timestamp} className={'message'}>{message?.user?.username}: {message?.text}</p>)}
+        </div>
+        <input type="text" placeholder={'Votre message'}
+               onKeyPress={(e) => e.key === 'Enter' && socket.send(JSON.stringify({
+                   type: 'new-message',
+                   room_name: groupchat,
+                   message: e.target.value
+               }))}/>
+    </div>)
 }

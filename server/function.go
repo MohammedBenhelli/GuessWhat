@@ -7,9 +7,11 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"time"
 )
 
 func GetDrawer(l *Lobby) (*User, error) {
+	rand.Seed(time.Now().UnixNano())
 	r := rand.Intn(l.persons - 1)
 	fmt.Println(r)
 	in := 0
@@ -29,6 +31,7 @@ func GetDrawer(l *Lobby) (*User, error) {
 
 func RandomWord() (string, error) {
 	index := 0
+	rand.Seed(time.Now().UnixNano())
 	randNumber := rand.Intn(WORDS)
 
 	file, err := os.Open(FILENAME); if err != nil {
@@ -47,6 +50,7 @@ func RandomWord() (string, error) {
 		if index == randNumber {
 			return scanner.Text(), nil
 		}
+		scanner.Text()
 	}
 
 	if err := scanner.Err(); err != nil {
